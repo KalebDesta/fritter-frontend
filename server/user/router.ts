@@ -16,7 +16,7 @@ const router = express.Router();
  *
  * @return - currently logged in user, or null if not logged in
  */
-router.get(
+ router.get(
   '/session',
   [],
   async (req: Request, res: Response) => {
@@ -40,6 +40,7 @@ router.get(
  * @throws {400} - If username or password is  not in the correct format,
  *                 or missing in the req
  * @throws {401} - If the user login credentials are invalid
+ * @throws {410} - If the user tries to use 'Anonymous User' as username
  *
  */
 router.post(
@@ -95,6 +96,7 @@ router.delete(
  * @throws {403} - If there is a user already logged in
  * @throws {409} - If username is already taken
  * @throws {400} - If password or username is not in correct format
+ * @throws {410} - If the user tries to use 'Anonymous User' as username
  *
  */
 router.post(
@@ -118,7 +120,7 @@ router.post(
 /**
  * Update a user's profile.
  *
- * @name PATCH /api/users
+ * @name PUT /api/users
  *
  * @param {string} username - The user's new username
  * @param {string} password - The user's new password
@@ -126,8 +128,9 @@ router.post(
  * @throws {403} - If user is not logged in
  * @throws {409} - If username already taken
  * @throws {400} - If username or password are not of the correct format
+ * @throws {410} - If the user tries to use 'Anonymous User' as username
  */
-router.patch(
+router.put(
   '/',
   [
     userValidator.isUserLoggedIn,

@@ -10,10 +10,14 @@ Vue.use(Vuex);
 const store = new Vuex.Store({
   state: {
     filter: null, // Username to filter shown freets by (null = show all)
-    freets: [], // All freets created in the app
+    freets: [], // the freets to be displayed for the user
     username: null, // Username of the logged in user
-    alerts: {} // global success/error messages encountered during submissions to non-visible forms
-  },
+    alerts: {}, // global success/error messages encountered during submissions to non-visible forms
+    // AllFreets:[], //All the freets that have been created
+    subscribed:[],
+    following:[],
+    mutedTopics:[]
+  }, 
   mutations: {
     alert(state, payload) {
       /**
@@ -49,9 +53,38 @@ const store = new Vuex.Store({
       /**
        * Request the server for the currently available freets.
        */
-      const url = state.filter ? `/api/users/${state.filter}/freets` : '/api/freets';
+      const url = state.filter ? `/api/freets?author=${state.filter}` : '/api/feed';
       const res = await fetch(url).then(async r => r.json());
-      state.freets = res;
+      const freetsWithTags = [];
+      for ( const freet of res ){
+        const tags = await fetch(`/api/hashtags?freetId=${freet._id}`).then(async r => r.json());
+        freetsWithTags.push({freet:freet, tags:tags});
+      }
+      state.freets = freetsWithTags;
+    },
+    async refreshSubscriptions(state){
+      const url = `/api/subscribe/`;
+      const res = await fetch(url,{
+        method: `GET`,
+        credentials: 'same-origin'
+      }).then(async r => r.json());
+      state.subscribed = res.subscribedTo;
+    },
+    async refreshFollowing(state){
+      const url = `/api/follow/`;
+      const res = await fetch(url,{
+        method: `GET`,
+        credentials: 'same-origin'
+      }).then(async r => r.json());
+      state.following = res.following;
+    },
+    async refreshMuted(state){
+      const url =  `/api/mute-topics`;
+      const res = await fetch(url,{
+        method: `GET`,
+        credentials: 'same-origin'
+      }).then(async r => r.json());
+      state.mutedTopics = res.mutedTopics;
     }
   },
   // Store data across page refreshes, only discard on browser close

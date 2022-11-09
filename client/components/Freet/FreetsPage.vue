@@ -3,13 +3,13 @@
 <template>
   <main>
     <section v-if="$store.state.username">
-      <header>
+      <header class="welcome">
         <h2>Welcome @{{ $store.state.username }}</h2>
       </header>
       <CreateFreetForm />
     </section>
     <section v-else>
-      <header>
+      <header class="welcome">
         <h2>Welcome to Fritter!</h2>
       </header>
       <article>
@@ -45,8 +45,10 @@
       >
         <FreetComponent
           v-for="freet in $store.state.freets"
-          :key="freet.id"
-          :freet="freet"
+          :key="freet['freet'].id"
+          :freet="freet['freet']"
+          :tags="freet['tags']"
+
         />
       </section>
       <article
@@ -76,6 +78,7 @@ export default {
 section {
   display: flex;
   flex-direction: column;
+  
 }
 
 header, header > * {
@@ -86,8 +89,12 @@ header, header > * {
 
 button {
     margin-right: 10px;
-}
 
+}
+.welcome{
+  font-size: 22px;
+  color: inherit;
+}
 section .scrollbox {
   flex: 1 0 50vh;
   padding: 3%;

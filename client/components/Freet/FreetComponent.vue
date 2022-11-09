@@ -6,9 +6,12 @@
     class="freet"
   >
     <header>
-      <h3 class="author">
-        @{{ freet.author }}
-      </h3>
+      
+        <h3 class="author">
+          <router-link class = "nav-link" :event="this.clickable ? 'click' : ''"  :to="{ name: 'Profile', params: { user: freet.author }}">
+            @{{ freet.author }}
+        </router-link>
+        </h3>
       <div
         v-if="$store.state.username === freet.author"
         class="actions"
@@ -42,12 +45,36 @@
       :value="draft"
       @input="draft = $event.target.value"
     />
+    <v-select 
+      v-if="editing" 
+      label="label" 
+      :options="anonymityOptions"
+      :reduce="(option) => option.value"
+      :value = 'anonymity'
+      v-model = 'anonymity'
+      ></v-select>
+    <vue-tags-input
+      v-if = "editing"
+      v-model="tag"
+      :tags="tags"
+      @tags-changed="newTags => tags = newTags"
+    />
     <p
       v-else
       class="content"
     >
       {{ freet.content }}
     </p>
+    <p
+      v-if = "!editing"
+      class="anonymousTo">
+      Anonymous to: {{freet.anonymousTo}}
+    </p>
+    <div id="tags">
+      <template v-for = "tag in tags">
+        <button @click="$router.push({ name:`Hashtags`, params : {tag} })" >{{tag}}</button>
+      </template>
+    </div>
     <p class="info">
       Posted at {{ freet.dateModified }}
       <i v-if="freet.edited">(edited)</i>
@@ -65,6 +92,13 @@
 </template>
 
 <script>
+import Vue from 'vue';
+import vSelect from 'vue-select';
+import 'vue-select/dist/vue-select.css';
+import VueTagsInput from '@johmun/vue-tags-input';
+
+Vue.component('v-select', vSelect)
+
 export default {
   name: 'FreetComponent',
   props: {
@@ -72,12 +106,30 @@ export default {
     freet: {
       type: Object,
       required: true
+    },
+    tags:{
+      type: Array,
+      required: true
     }
   },
   data() {
     return {
       editing: false, // Whether or not this freet is in edit mode
       draft: this.freet.content, // Potentially-new content for this freet
+      anonymity: this.freet.anonymousTo,
+      clickable: this.freet.author !== 'Anonymous User',
+      tag: '',
+      anonymityOptions : [
+        {label:"Not Anonymous(None)",
+         value:"None"},
+        {label:"Followers",
+         value:"Followers"},
+        {label:"Non-Followers",
+        value:"NonFollowers"},
+        {label:"Everyone",
+        value:"All"
+        }
+      ],
       alerts: {} // Displays success/error messages encountered during freet modification
     };
   },
@@ -88,6 +140,7 @@ export default {
        */
       this.editing = true; // Keeps track of if a freet is being edited
       this.draft = this.freet.content; // The content of our current "draft" while being edited
+      this.anonymity = this.freet.anonymousTo; //not sure if i should do this
     },
     stopEditing() {
       /**
@@ -95,42 +148,60 @@ export default {
        */
       this.editing = false;
       this.draft = this.freet.content;
+      this.anonymity = this.freet.anonymousTo; //not sure if i should do this
     },
     deleteFreet() {
       /**
        * Deletes this freet.
        */
-      const params = {
-        method: 'DELETE',
-        callback: () => {
-          this.$store.commit('alert', {
-            message: 'Successfully deleted freet!', status: 'success'
-          });
-        }
-      };
-      this.request(params);
+      if(confirm("Are you sure you want to delete the Freet?")){
+        const params = {
+          method: 'DELETE',
+          callback: () => {
+            this.$store.commit('alert', {
+              message: 'Successfully deleted freet!', status: 'success'
+            });
+          }
+        };
+        this.request(params);
+      }
     },
     submitEdit() {
       /**
        * Updates freet to have the submitted draft content.
        */
-      if (this.freet.content === this.draft) {
-        const error = 'Error: Edited freet content should be different than current freet content.';
+      if (this.freet.content === this.draft && this.freet.anonymousTo === this.anonymity) {
+        const error = 'Error: Edited freet should either contain different freet content or anonymity.';
         this.$set(this.alerts, error, 'error'); // Set an alert to be the error text, timeout of 3000 ms
         setTimeout(() => this.$delete(this.alerts, error), 3000);
         return;
       }
-
-      const params = {
+      if (this.freet.content !== this.draft){
+        const params = {
         method: 'PATCH',
         message: 'Successfully edited freet!',
         body: JSON.stringify({content: this.draft}),
         callback: () => {
           this.$set(this.alerts, params.message, 'success');
           setTimeout(() => this.$delete(this.alerts, params.message), 3000);
+          }
+        };
+        this.request(params);
+      }
+      if (this.freet.anonymousTo !== this.anonymity){
+        if(confirm("Are you sure you want to modify the anonymity of this Freet")){
+          const params = {
+          method: 'PATCH',
+          message: 'Successfully edited freet!',
+          body: JSON.stringify({anonymousTo: this.anonymity}),
+          callback: () => {
+            this.$set(this.alerts, params.message, 'success');
+            setTimeout(() => this.$delete(this.alerts, params.message), 3000);
+            }
+          };
+          this.request(params);
         }
-      };
-      this.request(params);
+      }
     },
     async request(params) {
       /**
@@ -168,8 +239,24 @@ export default {
 
 <style scoped>
 .freet {
-    border: 1px solid #111;
+    border: 1px solid rgb(255, 255, 255);
     padding: 20px;
+    font-family: Arial, Helvetica, sans-serif;
     position: relative;
+    color: #EDF5E1;
+    background-color: #021e39;
+    border-radius: 0.5em;
+}
+.nav-link {
+  color: #b3feff;
+  padding: 5px;
+}
+
+button {
+  border: 1px solid #111;
+  padding: 10px 24px;
+  border-radius: 22px;
+  font-size: 17px;
+  background-color:#38b1b1;
 }
 </style>

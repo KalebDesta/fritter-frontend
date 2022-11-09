@@ -10,6 +10,9 @@
         "dev": "nodemon api/index.ts -e js,ts,json"
     },
     "dependencies": {
+        "@innologica/vue-dropdown-menu": "^0.1.4",
+        "@johmun/vue-tags-input": "^2.1.0",
+        "@mmmrks/vue-dropdown-menu": "^1.0.1",
         "connect-history-api-fallback": "^1.6.0",
         "connect-mongo": "^4.6.0",
         "cookie-parser": "~1.4.3",
@@ -23,7 +26,9 @@
         "morgan": "~1.10.0",
         "nanoid": "^3.3.4",
         "vue": "^2.7.13",
+        "vue-dropdowns": "^1.1.2",
         "vue-router": "^3.6.5",
+        "vue-select": "^3.20.0",
         "vuex": "^3.6.2",
         "vuex-persistedstate": "^4.1.0"
     },
@@ -38,7 +43,9 @@
         "eslint-config-xo": "^0.42.0",
         "eslint-config-xo-typescript": "^0.53.0",
         "eslint-plugin-vue": "^9.6.0",
+        "node-sass": "^7.0.3",
         "nodemon": "^2.0.20",
+        "sass-loader": "^13.1.0",
         "ts-node": "^10.6.0",
         "typescript": "^4.6.4",
         "vue-template-compiler": "^2.7.13"
@@ -54,7 +61,9 @@
                 "files": [
                     "**/*.ts"
                 ],
-                "excludedFiles": ["client/**"],
+                "excludedFiles": [
+                    "client/**"
+                ],
                 "extends": [
                     "xo",
                     "xo-typescript/space",

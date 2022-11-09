@@ -11,16 +11,20 @@ export default {
   },
   methods: {
     async submit() {
-      const url = this.value ? `/api/freets?author=${this.value}` : '/api/freets';
+      const url = this.value ? `/api/freets?author=${this.value}` :'/api/feed';
       try {
         const r = await fetch(url);
         const res = await r.json();
         if (!r.ok) {
           throw new Error(res.error);
         }
-
+        const freetsWithTags = [];
+        for ( const freet of res ){
+        const tags = await fetch(`/api/hashtags?freetId=${freet._id}`).then(async r => r.json());
+          freetsWithTags.push({freet:freet,tags:tags});
+        }
         this.$store.commit('updateFilter', this.value);
-        this.$store.commit('updateFreets', res);
+        this.$store.commit('updateFreets', freetsWithTags);
       } catch (e) {
         if (this.value === this.$store.state.filter) {
           // This section triggers if you filter to a user but they

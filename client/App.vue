@@ -19,6 +19,7 @@ export default {
       credentials: 'same-origin' // Sends express-session credentials with request
     }).then(res => res.json()).then(res => {
       const user = res.user;
+      console.log(user);
       this.$store.commit('setUsername', user ? user.username : null);
     });
 
@@ -40,6 +41,9 @@ body {
   padding: 0;
   margin: 0;
   font-size: 1.2em;
+  background-color: #f8fdfb;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #000000;
 }
 
 main {
@@ -74,4 +78,6 @@ main {
 .alerts .success {
     background-color: rgb(45, 135, 87);
 }
+
+
 </style>

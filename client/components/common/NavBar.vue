@@ -14,6 +14,17 @@
       <router-link to="/">
         Home
       </router-link>
+      <router-link 
+      v-if="$store.state.username" 
+        :to="`/profile/${$store.state.username}`">
+        Profile
+      </router-link>
+      <router-link 
+      v-if="$store.state.username" 
+        to="/muteTopics"
+        >
+        Mute Topics
+      </router-link>
       <router-link
         v-if="$store.state.username"
         to="/account"
@@ -41,8 +52,8 @@
 
 <style scoped>
 nav {
-    padding: 1vw 2vw;
-    background-color: #ccc;
+    padding: 3vw 2vw;
+    background-color: #5CDB95;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -50,12 +61,14 @@ nav {
 }
 
 .title {
-    font-size: 32px;
+    font-size: 40px;
     margin: 0 5px;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #05386B
 }
 
 img {
-    height: 32px;
+    height: 40px;
 }
 
 .left {
@@ -69,6 +82,8 @@ img {
     gap: 16px;
     grid-auto-flow: column;
     align-items: center;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #05386B
 }
 
 .right a {
